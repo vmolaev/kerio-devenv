@@ -1,0 +1,31 @@
+import groovy.json.JsonSlurper
+
+buildscript {
+	repositories {
+		maven {
+			url "https://nexus.devfactory.com/repository/kerio-connect-public"
+		}
+	}
+	dependencies {
+		classpath 'com.github.kevinsawicki:http-request:6.0'
+	}
+}
+import com.github.kevinsawicki.http.*
+
+if (!project.hasProperty("githubPrivateToken")) {
+	throw new GradleException("\nError message: Please set to 'githubPrivateToken=<yourGithubPrivateToken>' to ~/.gradle/gradle.properties")
+}
+
+	
+def applyGradlePluginFromGithub(repo, pluginName, branch) {
+	def url = "https://api.github.com/repos/${repo}/contents/${pluginName}?access_token=${githubPrivateToken}&ref=${branch}"
+	def req = HttpRequest.get(url)
+	req.trustAllCerts()
+	req.trustAllHosts()
+	def json = new JsonSlurper().parseText(req.body())
+	apply from: json.download_url
+}
+
+ext {
+	applyGradlePluginFromGithub = this.&applyGradlePluginFromGithub
+}
