@@ -18,8 +18,8 @@ if (!project.hasProperty("githubPrivateToken")) {
 
 	
 def applyGradlePluginFromGithub(repo, pluginName, branch) {
-	def url = "https://api.github.com/repos/${repo}/contents/${pluginName}?access_token=${githubPrivateToken}&ref=${branch}"
-	def req = HttpRequest.get(url)
+	def url = "https://api.github.com/repos/${repo}/contents/${pluginName}?ref=${branch}"
+	def req = HttpRequest.get(url).authorization("token ${githubPrivateToken}");
 	req.trustAllCerts()
 	req.trustAllHosts()
 	def json = new JsonSlurper().parseText(req.body())
